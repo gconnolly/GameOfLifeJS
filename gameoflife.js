@@ -19,9 +19,7 @@
 		            [ cell[0] - 1,  cell[1]     ],
 		            [ cell[0] - 1,  cell[1] - 1 ],
 		            [ cell[0] - 1,  cell[1] + 1 ]
-		        ].forEach(function (newCell) {
-		            cellsToInspect[ newCell.join() ] = newCell;
-		        });
+		        ].forEach(setTuple.bind(this, cellsToInspect));
 	    	}
 	    }
 	    
@@ -30,7 +28,7 @@
 		        cell = cellsToInspect[cellName];
 		        
 		        if(determineFateOfCell(livingCells, cell)) {
-		            result[ cell.join() ] = cell;
+		        	setTuple(result, cell);
 		        }
 	    	}
 	    }    
@@ -64,26 +62,10 @@
 	    }, 0);
 	}
 
-	// render living cells in a bounding rectangle
-	function draw(livingCells) {
-	    var x, y,
-	        minX = getMinTuple(livingCells, 0),
-	        minY = getMinTuple(livingCells, 1),
-	        maxX = getMaxTuple(livingCells, 0),
-	        maxY = getMaxTuple(livingCells, 1),
-	        grid = '\n';
+	function setTuple(tupleSet, tuple) {
+		tupleSet[ tuple.join() ] = tuple;
 
-	    for (y = minY; y <= maxY; y++) {
-	        for (x = minX; x <= maxX; x++) {
-	            grid += livingCells[ [x, y].join() ] ? 
-	              	'*'
-	                : '-';
-	        }
-
-	        grid += '\n';
-	    }
-
-	    return grid;
+		return tupleSet;
 	}
 
 	function reduceTupleSet(tupleSet, reduce, initial) {
@@ -124,16 +106,35 @@
 	}
 
 	function createTupleSetFromArray(arr) {
-	    return arr.reduce(function (tupleSet, tuple) {
-	        tupleSet[tuple.join()] = tuple;
-	        return tupleSet;
-	    }, {});
+	    return arr.reduce(setTuple, {});
+	}
+
+	// render living cells in a bounding rectangle
+	function draw(livingCells) {
+	    var x, y,
+	        minX = getMinTuple(livingCells, 0),
+	        minY = getMinTuple(livingCells, 1),
+	        maxX = getMaxTuple(livingCells, 0),
+	        maxY = getMaxTuple(livingCells, 1),
+	        grid = '<br/>';
+
+	    for (y = minY; y <= maxY; y++) {
+	        for (x = minX; x <= maxX; x++) {
+	            grid += livingCells[ [x, y].join() ] ? 
+	              	'*'
+	                : '&nbsp;';
+	        }
+
+	        grid += '<br/>';
+	    }
+
+	    return grid;
 	}
 
 	window.evolve = evolve;
 	window.draw = draw;
 	window.createTupleSetFromArray = createTupleSetFromArray;
-}())
+}());
 
 var slider = createTupleSetFromArray([
         [1, 2],
